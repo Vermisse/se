@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC模板配置 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/mvc
+			http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	
+	<!-- 扫描com.github.vermisse.listener.init包下所有标注@Component的服务组件 -->
+	<context:component-scan base-package="com.github.vermisse.listener.init"/>
+	
+	<!-- 扫描com.github.vermisse.search.controller.action包下所有标注@Controller的服务组件 -->
+	<context:component-scan base-package="com.github.vermisse.search.controller.action"/>
+	
+	<!-- 扫描com.github.vermisse.search.controller.service包下所有标注@Service的服务组件 -->
+	<context:component-scan base-package="com.github.vermisse.search.controller.service"/>
+	
+	<!-- 启动SpringMVC的注解功能，完成请求和注解POJO的映射 -->
+	<mvc:annotation-driven />
+</beans>

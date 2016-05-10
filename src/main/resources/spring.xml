@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC模板配置 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+	
+	<!-- 扫描目录配置 -->
+	<import resource="spring-autoscan.xml" />
+	<!-- 加载任务调度 -->
+	<import resource="spring-task.xml" />
+	<!-- 视图层配置 -->
+	<import resource="spring-view.xml" />
+	<!-- 数据源和事务配置 -->
+	<import resource="spring-source.xml" />
+</beans>

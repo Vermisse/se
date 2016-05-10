@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 视图层配置 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+	
+	<!-- JSP视图，对模型视图名称的解析，即在模型视图名称添加前后缀 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- order为2，优先级为最低 -->
+		<property name="order" value="2" />
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+	</bean>
+	
+	<!-- Freemarker视图 -->
+	<bean id="freemarkerViewResolver"  
+        class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">  
+        <!-- order为1，优先级为中 -->
+        <property name="order" value="1" />
+        <property name="suffix" value=".ftl" />
+        <property name="contentType" value="text/html;charset=utf-8" />
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" />
+    </bean>
+    <!-- Freemarker配置 -->
+    <bean name="freeMarkerConfigurer"
+        class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/WEB-INF/view/" />
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="freemarkerVariables">
+            <map>
+                <entry key="xml_escape" value-ref="fmXmlEscape" />
+            </map>
+        </property>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="tag_syntax">auto_detect</prop>
+                <prop key="template_update_delay">5</prop>
+                <prop key="defaultEncoding">UTF-8</prop>
+                <prop key="url_escaping_charset">UTF-8</prop>
+                <prop key="locale">zh_CN</prop>
+                <prop key="boolean_format">true,false</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                <prop key="date_format">yyyy-MM-dd</prop>
+                <prop key="time_format">HH:mm:ss</prop>
+                <prop key="number_format">0.######</prop>
+                <prop key="whitespace_stripping">true</prop>
+                <prop key="classic_compatible">true</prop>
+            </props>
+        </property>
+    </bean>
+	<bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape"/>
+	
+	<!-- Velocity视图 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver"> 
+        <!-- order为0，最高优先级 -->
+		<property name="order" value="0" />
+		<property name="cache" value="false" /><!--是否缓存模板 -->
+		<property name="suffix" value=".html" />
+		<property name="exposeSpringMacroHelpers" value="true" />
+		<property name="dateToolAttribute" value="dateTool" />
+		<property name="numberToolAttribute" value="numberTool" />
+		<property name="toolboxConfigLocation" value="/WEB-INF/classes/velocity-tools.xml" />
+		<property name="contentType" value="text/html;charset=UTF-8" />
+	</bean>
+    <!-- Velocity配置 -->
+	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<property name="resourceLoaderPath" value="/WEB-INF/view/" />
+		<property name="velocityProperties">
+			<props>
+				<prop key="input.encoding">UTF-8</prop><!-- 指定模板引擎进行模板处理的编码 -->
+				<prop key="output.encoding">UTF-8</prop><!-- 指定输出流的编码 -->
+				<prop key="contentType">text/html;charset=UTF-8</prop><!-- contentType -->
+				<prop key="eventhandler.referenceinsertion.class">org.apache.velocity.app.event.implement.EscapeHtmlReference</prop>
+				<prop key="eventhandler.escape.html.match">/msg.*/</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 文件上传 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+		p:defaultEncoding="utf-8" />
+</beans>

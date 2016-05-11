@@ -68,6 +68,6 @@
 		</tx:attributes>
 	</tx:advice>
 	<aop:config>
-		<aop:advisor pointcut="execution(* com.github.vermisse.listener.init.controller.*Listener.*(..))" advice-ref="txAdvice" />
+		<aop:advisor pointcut="execution(* com.github.vermisse.search.controller.service.*Service.*(..))" advice-ref="txAdvice" />
 	</aop:config>
 </beans>

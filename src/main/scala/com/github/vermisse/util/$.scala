@@ -2,6 +2,8 @@ package com.github.vermisse.util
 
 import scala.io._
 import java.sql._
+import java.util._
+import scala.reflect.runtime._
 
 /**
  * 工具类
@@ -28,6 +30,9 @@ object $ {
     }
   }
 
+  /**
+   * 读取url内容
+   */
   def url(url: String): String = {
     var result = ""
     val conn = Source.fromURL(url)
@@ -35,7 +40,7 @@ object $ {
       conn.getLines.foreach { result += _ }
       result
     } catch {
-      case ex: Exception => ""
+      case ex: Exception => null
     } finally {
       conn.close //自定义租赁模式，既使用后自动关闭，调用的时候无需考虑
     }

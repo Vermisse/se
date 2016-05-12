@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"  
+	"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">  
+<mapper namespace="com.github.vermisse.crawler.model.dao.QueneMapper">
+	
+	<!-- 查询队列，如果不传入url，查询全部未爬取页面，否则查询指定url -->
+	<select id="queryQuene">
+		select
+			t.url,
+			t.isdown,
+			t.save_date
+		from
+			quene t
+		<where>
+			<if test="url == null">
+				t.isdown = 0
+			</if>
+			<if test="url != null">
+				t.url = #{url}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 保存队列 -->
+	<insert id="saveQuene">
+		insert into quene(url, isdown, save_date)
+		values(#{url}, #{isdown}, #{save_date})
+	</insert>
+</mapper>

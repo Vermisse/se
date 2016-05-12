@@ -5,7 +5,6 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/scala"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/scala"/>
         <property name="java-output-path" value="/se/target/classes"/>
         <property name="context-root" value="se"/>
     </wb-module>

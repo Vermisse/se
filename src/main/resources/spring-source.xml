@@ -19,8 +19,7 @@
 	<context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true" />
 
 	<!-- 数据源 -->
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 		<property name="driverClassName" value="${derby.driver}" />
 		<property name="url" value="${derby.url}" />
 		<!-- 最大连接数据库连接数 -->
@@ -32,7 +31,7 @@
 		<property name="defaultAutoCommit" value="true" />
 		<!-- 是否自我中断 -->
 		<property name="removeAbandoned" value="true" />
-		<property name="removeAbandonedTimeout" value="600" />
+		<property name="removeAbandonedTimeout" value="10" />
 	</bean>
 
 	<!-- 加载数据源 -->
@@ -62,7 +61,7 @@
 	</bean>
 
 	<!-- 数据库事务策略 -->
-	<bean id="transactionManager"
+	<!-- <bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource">
 			<ref bean="dataSource" />
@@ -76,5 +75,5 @@
 	<aop:config>
 		<aop:advisor pointcut="execution(* com.github.vermisse.crawler.daemon.service.*Service.*(..))" advice-ref="txAdvice" />
 		<aop:advisor pointcut="execution(* com.github.vermisse.search.controller.service.*Service.*(..))" advice-ref="txAdvice" />
-	</aop:config>
+	</aop:config> -->
 </beans>

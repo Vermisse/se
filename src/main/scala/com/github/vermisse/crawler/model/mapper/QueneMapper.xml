@@ -4,7 +4,7 @@
 <mapper namespace="com.github.vermisse.crawler.model.dao.QueneMapper">
 	
 	<!-- 查询队列，如果不传入url，查询全部未爬取页面，否则查询指定url -->
-	<select id="queryQuene">
+	<select id="queryQuene" resultType="java.util.Map">
 		select
 			t.url,
 			t.isdown,
@@ -26,4 +26,15 @@
 		insert into quene(url, isdown, save_date)
 		values(#{url}, #{isdown}, #{save_date})
 	</insert>
+	
+	<!-- 索引队列 -->
+	<update id="indexQuene">
+		update
+			quene
+		set
+			isdown = #{isdown},
+			save_date = #{save_date}
+		where
+			url = #{url}
+	</update>
 </mapper>

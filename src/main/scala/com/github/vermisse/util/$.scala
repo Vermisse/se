@@ -5,12 +5,19 @@ import java.sql._
 import java.text._
 import java.util._
 import scala.reflect.runtime._
+import scala.collection.JavaConversions._
 import org.apache.lucene.document._
 import org.apache.lucene.analysis._
 import org.apache.lucene.store._
 import org.apache.lucene.analysis.standard._
 import org.apache.lucene.index._
 import java.nio.file._
+import java.net._
+import java.util.regex._
+import scala.collection.mutable.StringBuilder
+import org.htmlparser.beans._
+import org.apache.lucene.search._
+import org.apache.lucene.queryparser.classic._
 
 /**
  * 工具类
@@ -29,12 +36,12 @@ object $ {
 
     val c = Calendar.getInstance
     c.setTime(date)
-    c.set(Calendar.YEAR, year)
-    c.set(Calendar.MONTH, month)
-    c.set(Calendar.DAY_OF_YEAR, day)
-    c.set(Calendar.HOUR, hour)
-    c.set(Calendar.MINUTE, minute)
-    c.set(Calendar.SECOND, second)
+    c.add(Calendar.YEAR, year)
+    c.add(Calendar.MONTH, month)
+    c.add(Calendar.DAY_OF_YEAR, day)
+    c.add(Calendar.HOUR, hour)
+    c.add(Calendar.MINUTE, minute)
+    c.add(Calendar.SECOND, second)
 
     sdf.format(c.getTime)
   }
@@ -43,15 +50,39 @@ object $ {
    * 读取url内容
    */
   def url(url: String): String = {
-    var result = ""
-    val conn = Source.fromURL(url)
+    val result: StringBuilder = new StringBuilder
+
+    //字符集过滤
+    val filter = (matcher: Matcher) =>
+      if (!matcher.find)
+        "UTF-8"
+      else if (matcher.group(1) equalsIgnoreCase "GB2312")
+        "GBK"
+      else
+        matcher.group(1).toUpperCase
+
+    val _url: URL = new URL(url)
+    var conn: BufferedSource = null
     try {
-      conn.getLines.foreach { result += _ }
-      result
+      val map: Map[String, List[String]] = _url.openConnection.getHeaderFields
+      map.keySet.foreach {
+        key =>
+          if (key.toLowerCase == "content-type") {
+            map.get(key).foreach {
+              charset =>
+                val matcher: Matcher = Pattern.compile(".*charset=([^;]*).*").matcher(charset)
+                conn = Source.fromURL(url, filter(matcher))
+                conn.getLines.foreach { result.append(_) }
+            }
+          }
+      }
+      result.toString
     } catch {
-      case ex: Exception => null
+      case ex: Exception =>
+        ex.printStackTrace
+        null
     } finally {
-      conn.close //自定义租赁模式，既使用后自动关闭，调用的时候无需考虑
+      if (conn != null) conn.close
     }
   }
 
@@ -125,6 +156,9 @@ object $ {
     }
   }
 
+  /**
+   * 索引保存
+   */
   def iwriter(dir: String)(document: Document => Unit): Unit = {
     val analyzer: Analyzer = new StandardAnalyzer
 
@@ -135,12 +169,75 @@ object $ {
     val config: IndexWriterConfig = new IndexWriterConfig(analyzer)
     val iwriter: IndexWriter = new IndexWriter(directory, config)
 
-    try{
+    try {
       val doc: Document = new Document
       document(doc)
       iwriter.addDocument(doc)
-    }finally{
+    } finally {
       iwriter.close
     }
   }
+
+  def isearcher(dir: String)(document: Document => Unit) {
+    val analyzer: Analyzer = new StandardAnalyzer
+
+    //将索引存储到内存中
+    val directory: Directory = new RAMDirectory
+
+    //读取索引并查询
+    val ireader: DirectoryReader = DirectoryReader.open(directory)
+    val isearcher: IndexSearcher = new IndexSearcher(ireader)
+    //解析一个简单的查询
+    val parser: QueryParser = new QueryParser("fieldname", analyzer)
+    val query: Query = parser.parse("foreach")
+    val hits: scala.Array[ScoreDoc] = isearcher.search(query, 1000).scoreDocs
+    //迭代输出结果
+    0 to hits.length - 1 map {
+      i =>
+        val hitDoc: Document = isearcher.doc(hits(i).doc)
+        document(hitDoc)
+    }
+    ireader.close
+    directory.close
+  }
+
+  /**
+   * 获取HtmlParser格式化
+   */
+  def getStringBean = {
+    val sb = new StringBean
+    sb.setLinks(false)
+    sb.setReplaceNonBreakingSpaces(true)
+    sb.setCollapse(true)
+    sb
+  }
+
+  /**
+   * 过滤脚本标签
+   */
+  def filterScript(html: String): String = {
+    val style = html.toLowerCase.indexOf("<style")
+    val script = html.toLowerCase.indexOf("<script")
+    if (style != -1) {
+      var end = html.toLowerCase.indexOf("</style>")
+      while (end < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
+        end += html.substring(end + 1).toLowerCase.indexOf("</style>") + 1
+      filterScript(html.substring(0, style) + html.substring(end + 8))
+    } else if (script != -1) {
+      var end = html.toLowerCase.indexOf("</script>")
+      while (end < script)
+        end += html.substring(end + 1).toLowerCase.indexOf("</script>") + 1
+      filterScript(html.substring(0, script) + html.substring(end + 9))
+    } else html
+  }
+
+  /**
+   * null转换
+   */
+  def ##(text: String) = if (text == null) "" else text
+
+  /**
+   * url正则表达式验证规则
+   */
+  def regexUrl = "^(http|https|ftp)\\://([a-zA-Z0-9\\.\\-]+(\\:[a-zA-Z0-9\\.&%\\$\\-]+)*@)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\\-]+\\.)*[a-zA-Z0-9\\-]+\\.[a-zA-Z]{2,4})(\\:[0-9]+)?(/[^/][a-zA-Z0-9\\.\\,\\?\\'\\/\\+&%\\$#\\=~_\\-@]*)*$"
 }

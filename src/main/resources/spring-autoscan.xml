@@ -11,8 +11,11 @@
 			http://www.springframework.org/schema/context
 			http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 	
-	<!-- 扫描com.github.vermisse.listener.init包下所有标注@Component的服务组件 -->
-	<context:component-scan base-package="com.github.vermisse.listener.init"/>
+	<!-- 扫描com.github.vermisse.crawler.daemon.scheduler包下所有标注@Component的服务组件 -->
+	<context:component-scan base-package="com.github.vermisse.crawler.daemon.scheduler"/>
+	
+	<!-- 扫描com.github.vermisse.crawler.daemon.service包下所有标注@Service的服务组件 -->
+	<context:component-scan base-package="com.github.vermisse.crawler.daemon.service"/>
 	
 	<!-- 扫描com.github.vermisse.search.controller.action包下所有标注@Controller的服务组件 -->
 	<context:component-scan base-package="com.github.vermisse.search.controller.action"/>

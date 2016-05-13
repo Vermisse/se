@@ -10,7 +10,6 @@
 	<properties>
 		<lucene.version>5.5.0</lucene.version>
 		<spring.version>3.2.16.RELEASE</spring.version>
-		<slf4j.version>1.5.8</slf4j.version>
 	</properties>
 	<dependencies>
 		<!-- Spring组件 -->
@@ -147,12 +146,11 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<!-- junit支持 -->
+		<!-- htmlparser支持 -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
+			<groupId>org.htmlparser</groupId>
+			<artifactId>htmlparser</artifactId>
+			<version>1.6</version>
 		</dependency>
 	</dependencies>
 	<build>

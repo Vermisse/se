@@ -49,7 +49,7 @@ object $ {
   /**
    * 读取url内容
    */
-  def url(url: String): String = {
+  def url(url: String)(exception: String => Unit): String = {
     val result: StringBuilder = new StringBuilder
 
     //字符集过滤
@@ -65,21 +65,20 @@ object $ {
     var conn: BufferedSource = null
     try {
       val map: Map[String, List[String]] = _url.openConnection.getHeaderFields
-      map.keySet.foreach {
-        key =>
-          if (key.toLowerCase == "content-type") {
-            map.get(key).foreach {
-              charset =>
-                val matcher: Matcher = Pattern.compile(".*charset=([^;]*).*").matcher(charset)
-                conn = Source.fromURL(url, filter(matcher))
-                conn.getLines.foreach { result.append(_) }
-            }
-          }
+      if (map == null)
+        throw new Exception("无法获取Header")
+      if (map.get("Content-Type") == null)
+        throw new Exception("无法获取Content-Type")
+      map.get("Content-Type").foreach {
+        charset =>
+          val matcher: Matcher = Pattern.compile(".*charset=([^;]*).*").matcher(charset)
+          conn = Source.fromURL(url, filter(matcher))
+          conn.getLines.foreach { result.append(_) }
       }
       result.toString
     } catch {
       case ex: Exception =>
-        ex.printStackTrace
+        exception(ex.getMessage)
         null
     } finally {
       if (conn != null) conn.close
@@ -218,16 +217,16 @@ object $ {
   def filterScript(html: String): String = {
     val style = html.toLowerCase.indexOf("<style")
     val script = html.toLowerCase.indexOf("<script")
-    if (style != -1) {
-      var end = html.toLowerCase.indexOf("</style>")
-      while (end < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
-        end += html.substring(end + 1).toLowerCase.indexOf("</style>") + 1
-      filterScript(html.substring(0, style) + html.substring(end + 8))
-    } else if (script != -1) {
-      var end = html.toLowerCase.indexOf("</script>")
-      while (end < script)
-        end += html.substring(end + 1).toLowerCase.indexOf("</script>") + 1
-      filterScript(html.substring(0, script) + html.substring(end + 9))
+    var endStyle = html.toLowerCase.indexOf("</style>")
+    var endScript = html.toLowerCase.indexOf("</script>")
+    if (style != -1 && endStyle != -1) {
+      while (endStyle < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
+        endStyle += html.substring(endStyle + 1).toLowerCase.indexOf("</style>") + 1
+      filterScript(html.substring(0, style) + html.substring(endStyle + 8))
+    } else if (script != -1 && endScript != -1) {
+      while (endScript < script)
+        endScript += html.substring(endScript + 1).toLowerCase.indexOf("</script>") + 1
+      filterScript(html.substring(0, script) + html.substring(endScript + 9))
     } else html
   }
 

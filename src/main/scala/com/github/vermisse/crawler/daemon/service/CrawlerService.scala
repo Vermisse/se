@@ -32,13 +32,15 @@ class CrawlerService {
    * 保存索引
    */
   def saveIndex(dir: String)(url: String): Unit = {
+    var ex: String = null
     //读取url内容
-    val html = $.url(url)
-
+    val html = $.url(url)(ex = _)
     //如果为空，调过
-    if (html == null || html == "") {
+    if (ex != null) {
       queneMapper.indexQuene(url, $.date("yyyy-MM-dd"), 0)
-      print("[索引失败，可能是字符集原因导致]")
+      print("[索引失败][")
+      print(ex)
+      print("]")
       println(url)
       return
     }

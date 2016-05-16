@@ -18,6 +18,7 @@ import scala.collection.mutable.StringBuilder
 import org.htmlparser.beans._
 import org.apache.lucene.search._
 import org.apache.lucene.queryparser.classic._
+import java.nio.charset.MalformedInputException
 
 /**
  * 工具类
@@ -55,7 +56,7 @@ object $ {
     //字符集过滤
     val filter = (matcher: Matcher) =>
       if (!matcher.find)
-        "UTF-8"
+        "UTF-8" //如果没有先默认设置为UTF-8
       else if (matcher.group(1) equalsIgnoreCase "GB2312")
         "GBK"
       else
@@ -77,6 +78,17 @@ object $ {
       }
       result.toString
     } catch {
+      case ex: MalformedInputException =>
+        try {
+          conn.close
+          conn = Source.fromURL(url, "GBK") //如果读取失败用GBK重新读取一遍
+          conn.getLines.foreach { result.append(_) }
+          result.toString
+        } catch {
+          case ex: Exception =>
+            exception(ex.getMessage)
+            null
+        }
       case ex: Exception =>
         exception(ex.getMessage)
         null
@@ -247,6 +259,23 @@ object $ {
   }
 
   /**
+   * 创建随机字符串(包含数字及大小写字母)
+   */
+  def randomText(length: Int) = {
+    val sb: StringBuilder = new StringBuilder
+    0 to length - 1 foreach {
+      _ =>
+        val tmp = (Math.random() * 62).asInstanceOf[Int]
+        sb.append((if (tmp < 26)
+          tmp + 65
+        else if (tmp < 52)
+          tmp + 71
+        else tmp - 4).toChar)
+    }
+    sb.toString
+  }
+
+  /**
    * null转换
    */
   def ##(text: String) = if (text == null) "" else text
@@ -255,4 +284,9 @@ object $ {
    * url正则表达式验证规则
    */
   def regexUrl = "^(http|https|ftp)\\://([a-zA-Z0-9\\.\\-]+(\\:[a-zA-Z0-9\\.&%\\$\\-]+)*@)?((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|([a-zA-Z0-9\\-]+\\.)*[a-zA-Z0-9\\-]+\\.[a-zA-Z]{2,4})(\\:[0-9]+)?(/[^/][a-zA-Z0-9\\.\\,\\?\\'\\/\\+&%\\$#\\=~_\\-@]*)*$"
+
+  /**
+   * 数字正则表达式验证规则
+   */
+  def regexNum = "^[0-9]+$"
 }

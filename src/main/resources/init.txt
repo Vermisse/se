@@ -1,3 +1,6 @@
 http://www.sina.com/
 http://www.163.com/
 http://www.qq.com/
+http://www.sohu.com/
+http://www.ifeng.com/
+https://www.baidu.com/

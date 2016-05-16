@@ -7,13 +7,20 @@ import scala.collection._
 import org.apache.lucene.queryparser.classic.QueryParser
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil
 import java.util.ArrayList
+import com.github.vermisse.search.model.dao._
+import org.springframework.beans.factory.annotation._
 
 /**
  * @author vermisse
  */
 @Service
 class SearcherService {
+
+  @Autowired
+  private var mapper: HotMapper = null
+
   def queryText(dir: String)(keywords: String,
+                             ip: String,
                              pageSize: Int,
                              currentPage: Int)(page: java.util.ArrayList[Int] => Unit) = {
     val espKeywords = QueryParserUtil.escape(keywords)
@@ -38,10 +45,13 @@ class SearcherService {
       else if (pageCount > currentPage && pageCount > 10) pageCount - 9 to pageCount else null
       if (range != null) {
         val list = new ArrayList[Int]
-        range.foreach { list.add(_) }
+        range.foreach { list.add _ }
         page(list)
       }
     }
+    mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
     result
   }
+  
+  def getTop = mapper.getTop
 }

@@ -35,4 +35,8 @@
 	<listener>
 		<listener-class>com.github.vermisse.listener.InitListener</listener-class>
 	</listener>
+	<!-- 设置首页 -->
+	<welcome-file-list>
+		<welcome-file>s.html</welcome-file>
+	</welcome-file-list>
 </web-app>

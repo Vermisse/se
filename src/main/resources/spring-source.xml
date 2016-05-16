@@ -61,7 +61,7 @@
 	</bean>
 
 	<!-- 数据库事务策略 -->
-	<!-- <bean id="transactionManager"
+	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource">
 			<ref bean="dataSource" />
@@ -75,5 +75,5 @@
 	<aop:config>
 		<aop:advisor pointcut="execution(* com.github.vermisse.crawler.daemon.service.*Service.*(..))" advice-ref="txAdvice" />
 		<aop:advisor pointcut="execution(* com.github.vermisse.search.controller.service.*Service.*(..))" advice-ref="txAdvice" />
-	</aop:config> -->
+	</aop:config>
 </beans>

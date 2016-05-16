@@ -17,7 +17,7 @@ object Init {
 
     //从配置文件中读取驱动字符串加载
     Class.forName(pro("derby.driver"))
-    
+
     //柯里化查询和执行函数
     val query = $.select(pro("derby.url"))(_)
     val exec = $.execute(pro("derby.url"))(_)
@@ -33,6 +33,14 @@ object Init {
               url varchar(1024) primary key,
               isdown int,
               save_date varchar(10)
+            )
+          """,
+          """
+            create table hot(
+              id varchar(15) primary key,
+              ip varchar(20),
+              keywords varchar(1024),
+              save_date varchar(25)
             )
           """) map {
             //初始化数据库

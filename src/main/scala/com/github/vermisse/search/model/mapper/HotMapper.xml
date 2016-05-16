@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"  
+	"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">  
+<mapper namespace="com.github.vermisse.search.model.dao.HotMapper">
+	<insert id="saveKeywords">
+		insert into hot(id, ip, keywords, save_date)
+		values(#{id}, #{ip}, #{keywords}, #{save_date})
+	</insert>
+	
+	<select id="getTop" resultType="java.util.Map">
+		select
+			t.keywords,
+			count(*) as cnt
+		from
+			hot t
+		group by
+			t.keywords
+		order by
+			cnt desc,
+			max(t.save_date) desc
+	</select>
+</mapper>

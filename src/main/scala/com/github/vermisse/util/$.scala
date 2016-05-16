@@ -177,21 +177,37 @@ object $ {
     }
   }
 
-  def isearcher(dir: String)(document: Document => Unit) {
+  /**
+   * 查询索引
+   */
+  def isearcher(dir: String,
+                queries: scala.Array[String],
+                fields: scala.Array[String],
+                clauses: scala.Array[BooleanClause.Occur],
+                pageSize: Int,
+                currentPage: Int)(document: Document => Unit)(pageCount: Int => Unit) {
     val analyzer: Analyzer = new StandardAnalyzer
 
-    //将索引存储到内存中
-    val directory: Directory = new RAMDirectory
+    //将索引存储到硬盘上，使用下面的代码代替
+    val directory: Directory = FSDirectory.open(Paths.get(dir))
+    //如下想把索引存储到内存中
+    //val directory: Directory = new RAMDirectory
 
     //读取索引并查询
     val ireader: DirectoryReader = DirectoryReader.open(directory)
-    val isearcher: IndexSearcher = new IndexSearcher(ireader)
-    //解析一个简单的查询
-    val parser: QueryParser = new QueryParser("fieldname", analyzer)
-    val query: Query = parser.parse("foreach")
-    val hits: scala.Array[ScoreDoc] = isearcher.search(query, 1000).scoreDocs
+    val mreader: MultiReader = new MultiReader(ireader)
+    val isearcher: IndexSearcher = new IndexSearcher(mreader)
+
+    val query: Query = MultiFieldQueryParser.parse(queries, fields, clauses, new StandardAnalyzer)
+    val hits: scala.Array[ScoreDoc] = isearcher.search(query, Integer.MAX_VALUE).scoreDocs
+
+    val begin = pageSize * (currentPage - 1)
+    val end = Math.min(begin + pageSize, hits.length) - 1
+
+    pageCount(Math.ceil(hits.length / pageSize).asInstanceOf[Int])
+
     //迭代输出结果
-    0 to hits.length - 1 map {
+    begin to end foreach {
       i =>
         val hitDoc: Document = isearcher.doc(hits(i).doc)
         document(hitDoc)

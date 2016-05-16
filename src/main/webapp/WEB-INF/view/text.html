@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>简易搜索引擎</title>
+<meta charset="UTF-8" />
+<link href="commons/css/bootstrap.css" rel='stylesheet' type='text/css' />
+<link href="commons/css/style.css" rel='stylesheet' type='text/css' />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!----webfonts---->
+<link href='commons/css/css1.css' rel='stylesheet' type='text/css' />
+<link href='commons/css/css2.css' rel='stylesheet' type='text/css' />
+<!----//webfonts---->
+<script src="common/js/jquery.min.js"></script>
+<!--end slider -->
+<!--script-->
+<script type="text/javascript" src="commons/js/move-top.js"></script>
+<script type="text/javascript" src="commons/js/easing.js"></script>
+<!--/script-->
+<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		$(".scroll").click(function(event) {
+			event.preventDefault();
+			$('html,body').animate({
+				scrollTop : $(this.hash).offset().top
+			}, 900);
+		});
+	});
+</script>
+<!---->
+</head>
+<body>
+	<!---strat-banner---->
+	<div class="banner">
+		<div class="container">
+			<div class="banner-head">
+				<h1 style="font-family: 微软雅黑">简易搜索引擎</h1>
+				<h2>Simple Search Engine</h2>
+			</div>
+			<div class="banner-links">
+				<ul>
+					<li class="active"><a href="#">网页</a></li>
+					<li><a href="#">图片</a></li>
+					<div class="clearfix"></div>
+				</ul>
+			</div>
+			<hr style="color:red" />
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<div class="content-grids">
+				<div class="col-md-8 content-main">
+					#foreach($item in $!result)
+					<div class="content-grid-sec">
+						<div class="content-sec-info">
+							<h3>
+								<a href="$!item.url" target="_blank" style="font-family: 微软雅黑">$!item.title</a>
+							</h3>
+							<p style="font-family: 微软雅黑">$!item.description</p>
+							<h4>
+								<a href="$!item.url" target="_blank" style="color: green">$!item.url</a>
+							</h4>
+						</div>
+					</div>
+					#end
+					<div class="pages">
+						<ul>
+							#if($!previous)
+							<li><a href="s.html?keywords=$!keywords&currentPage=$!previous">Previous</a></li>
+							#end
+							#foreach($item in $!page)
+							<li #if($!item == $!currentPage)class="active"#end>
+								<a href="s.html?keywords=$!keywords&currentPage=$!item">$!item</a>
+							</li>
+							#end
+							#if($!next)
+							<li><a href="s.html?keywords=$!keywords&currentPage=$!next">Next</a></li>
+							#end
+						</ul>
+					</div>
+				</div>
+
+				<div class="col-md-4 content-main-right">
+					<div class="search">
+						<h3>SEARCH HERE</h3>
+						<form>
+							<input type="text" name="keywords" value="$!keywords" placeholder="搜索" required />
+							<input type="hidden" name="currentPage" value="1" />
+							<input type="submit" value="" />
+						</form>
+					</div>
+					<div class="categories">
+						<h3>CATEGORIES</h3>
+						<li class="active"><a href="#">Donec quis dui at dolor
+								tempor</a></li>
+						<li><a href="#">Vestibulum commodo felis quis tort</a></li>
+						<li><a href="#">Fusce pellentesque suscipit</a></li>
+					</div>
+					<div class="archives">
+						<h3>ARCHIVES</h3>
+						<li class="active"><a href="#">July 2014</a></li>
+						<li><a href="#">June 2014</a></li>
+						<li><a href="#">May 2014</a></li>
+					</div>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

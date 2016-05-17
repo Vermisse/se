@@ -27,8 +27,8 @@ class SearcherAction {
     //验证入参，如果keywords为空，赋值为空字符串
     val keywords = $.##(request.getParameter("keywords"))
 
-    val currentPage = if ($.##(request.getParameter("currentPage")).matches($.regexNum)) //如果是数字，取当前页
-      Integer.parseInt(request.getParameter("currentPage"))
+    val cur = if ($.##(request.getParameter("currentPage")).matches($.regexNum)) //如果是数字，取当前页
+      request.getParameter("currentPage").toInt
     else 1 //否则设置为1
 
     val pageSize = 10
@@ -37,18 +37,18 @@ class SearcherAction {
 
     val mav = new ModelAndView("text")
     mav.addObject("keywords", key)
-    mav.addObject("currentPage", currentPage)
+    mav.addObject("currentPage", cur)
 
     if (key.trim != "") {
-      var pageCount: Int = 0
+      var pageCount = 0
 
-      val result = query(key, request.getRemoteAddr, pageSize, currentPage) {
+      val result = query(key, request.getRemoteAddr, pageSize, cur) {
         mav.addObject("page", _)
       }(pageCount = _)
       mav.addObject("result", result)
 
-      if (currentPage != 1) mav.addObject("previous", currentPage - 1)
-      if (currentPage != pageCount) mav.addObject("next", currentPage + 1)
+      if (cur != 1) mav.addObject("previous", cur - 1)
+      if (cur != pageCount) mav.addObject("next", cur + 1)
     }
 
     mav.addObject("top", service.getTop)
@@ -60,8 +60,8 @@ class SearcherAction {
     //验证入参，如果keywords为空，赋值为空字符串
     val keywords = $.##(request.getParameter("keywords"))
 
-    val currentPage = if ($.##(request.getParameter("currentPage")).matches($.regexNum)) //如果是数字，取当前页
-      Integer.parseInt(request.getParameter("currentPage"))
+    val cur = if ($.##(request.getParameter("currentPage")).matches($.regexNum)) //如果是数字，取当前页
+      request.getParameter("currentPage").toInt
     else 1 //否则设置为1
 
     val pageSize = 9
@@ -70,18 +70,18 @@ class SearcherAction {
 
     val mav = new ModelAndView("image")
     mav.addObject("keywords", key)
-    mav.addObject("currentPage", currentPage)
+    mav.addObject("currentPage", cur)
 
     if (key.trim != "") {
-      var pageCount: Int = 0
+      var pageCount = 0
 
-      val result = query(key, request.getRemoteAddr, pageSize, currentPage) {
+      val result = query(key, request.getRemoteAddr, pageSize, cur) {
         mav.addObject("page", _)
       }(pageCount = _)
       mav.addObject("result", result)
 
-      if (currentPage != 1) mav.addObject("previous", currentPage - 1)
-      if (currentPage != pageCount) mav.addObject("next", currentPage + 1)
+      if (cur != 1) mav.addObject("previous", cur - 1)
+      if (cur != pageCount) mav.addObject("next", cur + 1)
     }
 
     mav.addObject("top", service.getTop)

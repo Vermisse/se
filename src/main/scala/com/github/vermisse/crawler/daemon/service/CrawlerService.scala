@@ -32,7 +32,7 @@ class CrawlerService {
   /**
    * 保存索引
    */
-  def saveIndex(dir: String)(url: String): Unit = {
+  def saveIndex(dir: String)(url: String) {
     var ex: String = null
     //读取url内容
     val html = $.url(url)(ex = _)
@@ -48,7 +48,7 @@ class CrawlerService {
 
     //因为要重复利用这个值，所以这里定义个常量
     val static = $.filterScript(html)
-    val parser: Parser = new Parser
+    val parser = new Parser
     parser.setInputHTML(static)
 
     var title: String = null

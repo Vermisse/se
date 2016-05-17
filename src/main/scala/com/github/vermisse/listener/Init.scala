@@ -11,7 +11,7 @@ object Init {
   /**
    * 创建数据库
    */
-  def createdb: Unit = {
+  def createdb {
     //柯里化配置文件
     val pro = $.prop("jdbc.properties")(_)
 
@@ -43,7 +43,7 @@ object Init {
               keywords varchar(1024),
               save_date varchar(25)
             )
-          """) map {
+          """).foreach {
             //初始化数据库
             exec(_)(x => x)
           }

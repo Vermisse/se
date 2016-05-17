@@ -36,26 +36,22 @@ class SearcherService {
       BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST表示and
       BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST_NOT表示not
       BooleanClause.Occur.MUST)
-    val result = new java.util.ArrayList[java.util.Map[String, String]]
+    val result = new ArrayList[java.util.Map[String, String]]
     $.isearcher(dir, queries, fields, clauses, pageSize, currentPage) {
       doc =>
-        val map = JavaConversions.mapAsJavaMap {
-          Map(
-            "url" -> doc.get("url"),
-            "title" -> doc.get("title"),
-            "description" -> doc.get("description"),
-            "content" -> doc.get("content"))
+        result.add {
+          JavaConversions.mapAsJavaMap {
+            Map(
+              "url" -> doc.get("url"),
+              "title" -> doc.get("title"),
+              "description" -> doc.get("description"),
+              "content" -> doc.get("content"))
+          }
         }
-        result.add(map)
     } {
       pageCnt =>
         pageCount(pageCnt)
-        val range = getRange(pageCnt, currentPage)
-        if (range != null) {
-          val list = new ArrayList[Int]
-          range.foreach { list.add _ }
-          page(list)
-        }
+        getRange(pageCnt, currentPage)(page(_))
     }
     mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
     result
@@ -77,27 +73,23 @@ class SearcherService {
       BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST表示and
       BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST_NOT表示not
       BooleanClause.Occur.MUST)
-    val result = new java.util.ArrayList[java.util.Map[String, String]]
+    val result = new ArrayList[java.util.Map[String, String]]
     $.isearcher(dir, queries, fields, clauses, pageSize, currentPage) {
       doc =>
-        val map = JavaConversions.mapAsJavaMap {
-          Map(
-            "url" -> doc.get("url"),
-            "title" -> doc.get("title"),
-            "description" -> doc.get("description"),
-            "content" -> doc.get("content"),
-            "image" -> doc.get("image"))
+        result.add {
+          JavaConversions.mapAsJavaMap {
+            Map(
+              "url" -> doc.get("url"),
+              "title" -> doc.get("title"),
+              "description" -> doc.get("description"),
+              "content" -> doc.get("content"),
+              "image" -> doc.get("image"))
+          }
         }
-        result.add(map)
     } {
       pageCnt =>
         pageCount(pageCnt)
-        val range = getRange(pageCnt, currentPage)
-        if (range != null) {
-          val list = new ArrayList[Int]
-          range.foreach { list.add _ }
-          page(list)
-        }
+        getRange(pageCnt, currentPage)(page(_))
     }
     mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
     result
@@ -106,21 +98,25 @@ class SearcherService {
   /**
    * 获取分页
    */
-  def getRange(pageCnt: Int, currentPage: Int) = if (pageCnt > currentPage + 9)
-    currentPage to currentPage + 9 //如果总页数比当前页大9页以上，从当前页数到9页以后
-  else if (pageCnt > currentPage && pageCnt > 10)
-    pageCnt - 9 to pageCnt //否则如果比当前页大不到9页，但是超过10页，说明是最后几页，从最后一页-9开始计算
-  else if (pageCnt != 0)
-    1 to pageCnt
-  else
-    null
+  def getRange(cnt: Int, cur: Int)(page: ArrayList[Int] => Unit) {
+    val list = new ArrayList[Int]
+    (if (cnt > cur + 9)
+      cur to cur + 9 //如果总页数比当前页大9页以上，从当前页数到9页以后
+    else if (cnt > cur && cnt > 10)
+      cnt - 9 to cnt //否则如果比当前页大不到9页，但是超过10页，说明是最后几页，从最后一页-9开始计算
+    else if (cnt != 0)
+      1 to cnt
+    else
+      0 to 0).foreach(list.add _)
+    page(list)
+  }
 
   /**
    * 查询热搜榜
    */
   def getTop = {
     val all = mapper.getTop
-    val list = new java.util.ArrayList[java.util.Map[String, Int]]
+    val list = new ArrayList[java.util.Map[String, Int]]
 
     0 to (if (all.size > 9) 9 else all.size - 1) foreach {
       i =>

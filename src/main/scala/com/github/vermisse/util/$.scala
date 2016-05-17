@@ -28,11 +28,19 @@ object $ {
 
   /**
    * 日期处理，所有参数都有默认值
+   * @param format:输出格式，偏函数，默认值为yyyy-MM-dd HH:mm:ss
+   * @param date:日期，偏函数，默认为当前系统时间
+   * @param year:修改年，偏函数，默认为0
+   * @param month:修改月，偏函数，默认为0
+   * @param day:修改日，偏函数，默认为0
+   * @param hour:修改时，偏函数，默认为0
+   * @param minute:修改分，偏函数，默认为0
+   * @param second:修改秒，偏函数，默认为0
    */
   def date(format: String = "yyyy-MM-dd HH:mm:ss",
            date: java.util.Date = new java.util.Date,
            year: Int = 0, month: Int = 0, day: Int = 0,
-           hour: Int = 0, minute: Int = 0, second: Int = 0): String = {
+           hour: Int = 0, minute: Int = 0, second: Int = 0) = {
     val sdf = new SimpleDateFormat(format)
 
     val c = Calendar.getInstance
@@ -49,11 +57,13 @@ object $ {
 
   /**
    * 读取url内容
+   * @param url:网址
+   * @param exception:异常信息，高阶函数
    */
-  def url(url: String)(exception: String => Unit): String = {
+  def url(url: String)(exception: String => Unit) = {
     val result: StringBuilder = new StringBuilder
 
-    //字符集过滤
+    //字符集过滤闭包
     val filter = (matcher: Matcher) =>
       if (!matcher.find)
         "UTF-8" //如果没有先默认设置为UTF-8
@@ -99,23 +109,32 @@ object $ {
 
   /**
    * 读取文件内容
+   * @param path:文件路径
+   * @param line:每行内容，高阶函数
    */
-  def file(path: String)(line: String => Unit): Unit = {
+  def file(path: String)(line: String => Unit) {
     val file = Source.fromFile(this.getClass.getClassLoader.getResource(path).getPath)
     try {
       file.getLines.foreach { line(_) }
     } catch {
-      case ex: Exception => null
+      case ex: Exception => Unit
     } finally {
       file.close //自定义租赁模式，既使用后自动关闭，调用的时候无需考虑
     }
   }
 
   /**
-   * 查询
+   * JDBC查询
+   * @param url:数据库连接
+   * @param username:数据库账号，偏函数
+   * @param password:数据库密码，偏函数
+   * @param sql:查询语句
+   * @param ps:PreparedStatement实例，高阶函数
+   * @param rs:ResultSet实例，高阶函数
    */
-  def select(url: String, username: String = null,
-             password: String = null)(sql: String)(ps: PreparedStatement => Unit)(rs: ResultSet => Unit): Unit = {
+  def select(url: String,
+             username: String = null,
+             password: String = null)(sql: String)(ps: PreparedStatement => Unit)(rs: ResultSet => Unit) {
     var conn: Connection = null
     var pstmt: PreparedStatement = null
     var rset: ResultSet = null
@@ -135,9 +154,15 @@ object $ {
   }
 
   /**
-   * 执行
+   * JDBC执行
+   * @param url:数据库连接
+   * @param username:数据库账号，偏函数
+   * @param password:数据库密码，偏函数
+   * @param sql:查询语句
+   * @param ps:PreparedStatement实例，高阶函数
    */
-  def execute(url: String, username: String = null,
+  def execute(url: String,
+              username: String = null,
               password: String = null)(sql: String)(ps: PreparedStatement => Unit) = {
     var conn: Connection = null
     var pstmt: PreparedStatement = null
@@ -156,8 +181,10 @@ object $ {
 
   /**
    * 读取properties配置文件
+   * @param source:资源路径
+   * @param key:键值
    */
-  def prop(source: String)(key: String): String = {
+  def prop(source: String)(key: String) = {
     try {
       val prop = new Properties
       prop.load(this.getClass.getClassLoader.getResourceAsStream(source))
@@ -168,20 +195,22 @@ object $ {
   }
 
   /**
-   * 索引保存
+   * lucene索引保存
+   * @param dir:资源路径
+   * @param document:lucene文档，高阶函数
    */
-  def iwriter(dir: String)(document: Document => Unit): Unit = {
-    val analyzer: Analyzer = new StandardAnalyzer
+  def iwriter(dir: String)(document: Document => Unit) {
+    val analyzer = new StandardAnalyzer
 
     //将索引存储到硬盘上，使用下面的代码代替
-    val directory: Directory = FSDirectory.open(Paths.get(dir))
+    val directory = FSDirectory.open(Paths.get(dir))
     //如下想把索引存储到内存中
     //val directory: Directory = new RAMDirectory
-    val config: IndexWriterConfig = new IndexWriterConfig(analyzer)
-    val iwriter: IndexWriter = new IndexWriter(directory, config)
+    val config = new IndexWriterConfig(analyzer)
+    val iwriter = new IndexWriter(directory, config)
 
     try {
-      val doc: Document = new Document
+      val doc = new Document
       document(doc)
       iwriter.addDocument(doc)
     } finally {
@@ -190,7 +219,15 @@ object $ {
   }
 
   /**
-   * 查询索引
+   * lucene查询索引(多条件分页)
+   * @param dir:资源路径
+   * @param queries:查询条件value集合
+   * @param fields:查询条件key集合
+   * @param clauses:逻辑关系(与、或、非)
+   * @param pageSize:每页多少条
+   * @param currentPage:当前第几页
+   * @param document:查询结果
+   * @param pageCount:总页数
    */
   def isearcher(dir: String,
                 queries: scala.Array[String],
@@ -198,36 +235,40 @@ object $ {
                 clauses: scala.Array[BooleanClause.Occur],
                 pageSize: Int,
                 currentPage: Int)(document: Document => Unit)(pageCount: Int => Unit) {
-    val analyzer: Analyzer = new StandardAnalyzer
+    val analyzer = new StandardAnalyzer
 
     //将索引存储到硬盘上，使用下面的代码代替
-    val directory: Directory = FSDirectory.open(Paths.get(dir))
+    val directory = FSDirectory.open(Paths.get(dir))
     //如下想把索引存储到内存中
     //val directory: Directory = new RAMDirectory
 
     //读取索引并查询
-    val ireader: DirectoryReader = DirectoryReader.open(directory)
-    val mreader: MultiReader = new MultiReader(ireader)
-    val isearcher: IndexSearcher = new IndexSearcher(mreader)
+    val ireader = DirectoryReader.open(directory)
+    val mreader = new MultiReader(ireader)
 
-    val query: Query = MultiFieldQueryParser.parse(queries, fields, clauses, new StandardAnalyzer)
-    val hits: scala.Array[ScoreDoc] = isearcher.search(query, Integer.MAX_VALUE).scoreDocs
+    try {
+      val isearcher = new IndexSearcher(mreader)
+      val query = MultiFieldQueryParser.parse(queries, fields, clauses, new StandardAnalyzer)
+      val hits = isearcher.search(query, Integer.MAX_VALUE).scoreDocs
 
-    val begin = pageSize * (currentPage - 1)
-    val end = Math.min(begin + pageSize, hits.length) - 1
+      val begin = pageSize * (currentPage - 1)
+      val end = Math.min(begin + pageSize, hits.length) - 1
 
-    pageCount {
-      Math.ceil(hits.length / pageSize).asInstanceOf[Int]
+      pageCount {
+        Math.ceil(hits.length / pageSize).asInstanceOf[Int]
+      }
+
+      //迭代输出结果
+      begin to end foreach {
+        i =>
+          val hitDoc: Document = isearcher.doc(hits(i).doc)
+          document(hitDoc)
+      }
+    } finally {
+      mreader.close
+      ireader.close
+      directory.close
     }
-
-    //迭代输出结果
-    begin to end foreach {
-      i =>
-        val hitDoc: Document = isearcher.doc(hits(i).doc)
-        document(hitDoc)
-    }
-    ireader.close
-    directory.close
   }
 
   /**
@@ -243,6 +284,7 @@ object $ {
 
   /**
    * 过滤脚本标签
+   * @param html:页面源代码
    */
   def filterScript(html: String): String = {
     val style = html.toLowerCase.indexOf("<style")
@@ -278,7 +320,7 @@ object $ {
   }
 
   /**
-   * null转换
+   * null转换为空字符串
    */
   def ##(text: String) = if (text == null) "" else text
 

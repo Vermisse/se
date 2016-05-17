@@ -28,7 +28,7 @@ class CrawlerTask {
    */
   def run {
     val saveIndex = service.saveIndex(application.getRealPath("/WEB-INF/lucene"))(_)
-    val level = Integer.parseInt($.prop("crawler.properties")("crawler.level"))
+    val level = $.prop("crawler.properties")("crawler.level").toInt
     1 to level foreach {
       i =>
         service.queryQuene.foreach {

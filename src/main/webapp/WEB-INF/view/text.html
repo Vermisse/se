@@ -32,7 +32,7 @@
 			<div class="banner-links">
 				<ul>
 					<li class="active"><a href="javascript:void(0);">网页</a></li>
-					<li><a href="#">图片</a></li>
+					<li><a href="p.html?keywords=$!keywords">图片</a></li>
 					<div class="clearfix"></div>
 				</ul>
 			</div>
@@ -85,7 +85,7 @@
 					<div class="categories">
 						<h3 style="font-family: 微软雅黑">热搜榜</h3>
 						#foreach($item in $!top)
-						<li><a href="#" style="font-family: 微软雅黑">$!{velocityCount}. $!item.KEYWORDS</a></li>
+						<li><a href="s.html?keywords=$!item.KEYWORDS" style="font-family: 微软雅黑">$!velocityCount. $!item.KEYWORDS</a></li>
 						#end
 					</div>
 				</div>

@@ -18,7 +18,7 @@ import scala.collection.mutable.StringBuilder
 import org.htmlparser.beans._
 import org.apache.lucene.search._
 import org.apache.lucene.queryparser.classic._
-import java.nio.charset.MalformedInputException
+import java.nio.charset._
 
 /**
  * 工具类
@@ -57,7 +57,7 @@ object $ {
     val filter = (matcher: Matcher) =>
       if (!matcher.find)
         "UTF-8" //如果没有先默认设置为UTF-8
-      else if (matcher.group(1) equalsIgnoreCase "GB2312")
+      else if (matcher.group(1).toUpperCase == "GB2312")
         "GBK"
       else
         matcher.group(1).toUpperCase
@@ -216,7 +216,9 @@ object $ {
     val begin = pageSize * (currentPage - 1)
     val end = Math.min(begin + pageSize, hits.length) - 1
 
-    pageCount(Math.ceil(hits.length / pageSize).asInstanceOf[Int])
+    pageCount {
+      Math.ceil(hits.length / pageSize).asInstanceOf[Int]
+    }
 
     //迭代输出结果
     begin to end foreach {
@@ -265,7 +267,7 @@ object $ {
     val sb: StringBuilder = new StringBuilder
     0 to length - 1 foreach {
       _ =>
-        val tmp = (Math.random() * 62).asInstanceOf[Int]
+        val tmp = (Math.random * 62).asInstanceOf[Int]
         sb.append((if (tmp < 26)
           tmp + 65
         else if (tmp < 52)

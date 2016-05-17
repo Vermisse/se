@@ -32,7 +32,8 @@ object Init {
             create table quene(
               url varchar(1024) primary key,
               isdown int,
-              save_date varchar(10)
+              save_date varchar(10),
+              type int
             )
           """,
           """

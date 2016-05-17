@@ -9,6 +9,6 @@
 		http://www.springframework.org/schema/task/spring-task.xsd">
 	<!-- 任务调度 -->
 	<task:scheduled-tasks>
-		<task:scheduled ref="crawlerTask" method="run" cron="* * 0/1 * * ?" />
+		<task:scheduled ref="crawlerTask" method="run" cron="0/5 * * * * ?" />
 	</task:scheduled-tasks>
 </beans>

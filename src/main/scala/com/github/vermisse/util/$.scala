@@ -291,6 +291,7 @@ object $ {
     val script = html.toLowerCase.indexOf("<script")
     var endStyle = html.toLowerCase.indexOf("</style>")
     var endScript = html.toLowerCase.indexOf("</script>")
+    
     if (style != -1 && endStyle != -1) {
       while (endStyle < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
         endStyle += html.substring(endStyle + 1).toLowerCase.indexOf("</style>") + 1

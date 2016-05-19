@@ -26,8 +26,7 @@ class SearcherService {
   def queryText(dir: String)(keywords: String,
                              ip: String,
                              pageSize: Int,
-                             currentPage: Int)(page: java.util.ArrayList[Int] => Unit)(
-                               pageCount: Int => Unit) = {
+                             currentPage: Int)(page: (ArrayList[Int], Int) => Unit) = {
     val espKeywords = QueryParserUtil.escape(keywords)
     val queries = Array(espKeywords, espKeywords, espKeywords, "url")
     val fields = Array("title", "description", "content", "type")
@@ -49,9 +48,8 @@ class SearcherService {
           }
         }
     } {
-      pageCnt =>
-        pageCount(pageCnt)
-        getRange(pageCnt, currentPage)(page(_))
+      count =>
+        getRange(count, currentPage)(page(_, count))
     }
     mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
     result
@@ -63,8 +61,7 @@ class SearcherService {
   def queryImage(dir: String)(keywords: String,
                               ip: String,
                               pageSize: Int,
-                              currentPage: Int)(page: java.util.ArrayList[Int] => Unit)(
-                                pageCount: Int => Unit) = {
+                              currentPage: Int)(page: (ArrayList[Int], Int) => Unit) = {
     val espKeywords = QueryParserUtil.escape(keywords)
     val queries = Array(espKeywords, espKeywords, espKeywords, "img")
     val fields = Array("title", "description", "content", "type")
@@ -87,9 +84,8 @@ class SearcherService {
           }
         }
     } {
-      pageCnt =>
-        pageCount(pageCnt)
-        getRange(pageCnt, currentPage)(page(_))
+      count =>
+        getRange(count, currentPage)(page(_, count))
     }
     mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
     result

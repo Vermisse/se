@@ -24,7 +24,7 @@ object Init {
 
     try {
       //查询队列表，如果异常说明数据库尚未初始化
-      query("select count(*) from quene")(x => x)(x => x)
+      query("select count(*) from quene")(x => Unit)(x => Unit)
     } catch {
       case ex: Exception =>
         Array(
@@ -45,7 +45,7 @@ object Init {
             )
           """).foreach {
             //初始化数据库
-            exec(_)(x => x)
+            exec(_)(x => Unit)
           }
         //从init.txt中读取入口页面
         $.file("init.txt") {

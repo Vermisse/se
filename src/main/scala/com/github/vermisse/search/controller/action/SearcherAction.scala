@@ -43,8 +43,10 @@ class SearcherAction {
       var pageCount = 0
 
       val result = query(key, request.getRemoteAddr, pageSize, cur) {
-        mav.addObject("page", _)
-      }(pageCount = _)
+        (page, count) =>
+          mav.addObject("page", page)
+          pageCount = count
+      }
       mav.addObject("result", result)
 
       if (cur != 1) mav.addObject("previous", cur - 1)
@@ -76,8 +78,10 @@ class SearcherAction {
       var pageCount = 0
 
       val result = query(key, request.getRemoteAddr, pageSize, cur) {
-        mav.addObject("page", _)
-      }(pageCount = _)
+        (page, count) =>
+          mav.addObject("page", page)
+          pageCount = count
+      }
       mav.addObject("result", result)
 
       if (cur != 1) mav.addObject("previous", cur - 1)

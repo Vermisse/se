@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest
 import com.github.vermisse.util._
 
 /**
+ * 搜索Action
  * @author vermisse
  */
 @Controller

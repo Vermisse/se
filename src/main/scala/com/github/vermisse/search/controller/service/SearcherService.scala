@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation._
 import scala.collection.JavaConversions._
 
 /**
+ * 搜索服务
  * @author vermisse
  */
 @Service

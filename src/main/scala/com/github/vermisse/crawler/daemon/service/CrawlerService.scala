@@ -105,6 +105,7 @@ class CrawlerService {
     0 to list.size - 1 foreach {
       i =>
         val tag = list.elementAt(i)
+        
         if (tag.isInstanceOf[LinkTag]) { //如果是a标签
           val link = tag.asInstanceOf[LinkTag].getLink
           if (link.matches($.regexUrl) && queneMapper.queryQuene(link).size == 0) {

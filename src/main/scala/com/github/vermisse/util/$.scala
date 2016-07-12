@@ -61,7 +61,7 @@ object $ {
    * @param exception:异常信息，高阶函数
    */
   def url(url: String)(exception: String => Unit) = {
-    val result: StringBuilder = new StringBuilder
+    val result = new StringBuilder
 
     //字符集过滤闭包
     val filter = (matcher: Matcher) =>
@@ -72,17 +72,17 @@ object $ {
       else
         matcher.group(1).toUpperCase
 
-    val _url: URL = new URL(url)
+    val _url = new URL(url)
     var conn: BufferedSource = null
     try {
-      val map: Map[String, List[String]] = _url.openConnection.getHeaderFields
+      val map = _url.openConnection.getHeaderFields
       if (map == null)
         throw new Exception("无法获取Header")
       if (map.get("Content-Type") == null)
         throw new Exception("无法获取Content-Type")
       map.get("Content-Type").foreach {
         charset =>
-          val matcher: Matcher = Pattern.compile(".*charset=([^;]*).*").matcher(charset)
+          val matcher = Pattern.compile(".*charset=([^;]*).*").matcher(charset)
           conn = Source.fromURL(url, filter(matcher))
           conn.getLines.foreach { result.append(_) }
       }
@@ -255,13 +255,13 @@ object $ {
       val end = Math.min(begin + pageSize, hits.length) - 1
 
       pageCount {
-        Math.ceil(hits.length / pageSize).asInstanceOf[Int]
+        Math.ceil(hits.length / pageSize).toInt
       }
 
       //迭代输出结果
       begin to end foreach {
         i =>
-          val hitDoc: Document = isearcher.doc(hits(i).doc)
+          val hitDoc = isearcher.doc(hits(i).doc)
           document(hitDoc)
       }
     } finally {
@@ -287,19 +287,23 @@ object $ {
    * @param html:页面源代码
    */
   def filterScript(html: String): String = {
-    val style = html.toLowerCase.indexOf("<style")
-    val script = html.toLowerCase.indexOf("<script")
-    var endStyle = html.toLowerCase.indexOf("</style>")
-    var endScript = html.toLowerCase.indexOf("</script>")
+    def indexOf(text: String) = html.toLowerCase.indexOf(text)
+    def refind(end: Int, tag: String) = html.substring(end + 1).toLowerCase.indexOf(tag) + 1
+    def sub(begin: Int, end: Int = html.length) = html.substring(begin, end)
+    
+    val style = indexOf("<style")
+    val script = indexOf("<script")
+    var endStyle = indexOf("</style>")
+    var endScript = indexOf("</script>")
     
     if (style != -1 && endStyle != -1) {
       while (endStyle < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
-        endStyle += html.substring(endStyle + 1).toLowerCase.indexOf("</style>") + 1
-      filterScript(html.substring(0, style) + html.substring(endStyle + 8))
+        endStyle += refind(endStyle, "</style>")
+      filterScript(sub(0, style) + sub(endStyle + 8))
     } else if (script != -1 && endScript != -1) {
       while (endScript < script)
-        endScript += html.substring(endScript + 1).toLowerCase.indexOf("</script>") + 1
-      filterScript(html.substring(0, script) + html.substring(endScript + 9))
+        endScript += refind(endScript, "</script>")
+      filterScript(sub(0, script) + sub(endScript + 9))
     } else html
   }
 
@@ -307,15 +311,11 @@ object $ {
    * 创建随机字符串(包含数字及大小写字母)
    */
   def randomText(length: Int) = {
-    val sb: StringBuilder = new StringBuilder
+    val sb = new StringBuilder
     0 to length - 1 foreach {
       _ =>
-        val tmp = (Math.random * 62).asInstanceOf[Int]
-        sb.append((if (tmp < 26)
-          tmp + 65
-        else if (tmp < 52)
-          tmp + 71
-        else tmp - 4).toChar)
+        val tmp = (Math.random * 62).toInt
+        sb.append((if (tmp < 26) tmp + 65 else if (tmp < 52) tmp + 71 else tmp - 4).toChar)
     }
     sb.toString
   }

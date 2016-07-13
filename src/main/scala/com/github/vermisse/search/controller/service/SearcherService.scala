@@ -112,8 +112,7 @@ class SearcherService {
    * 查询热搜榜
    */
   def getTop = {
-    val all = mapper.getTop
-    val list = new ArrayList[java.util.Map[String, Int]]
+    val (all, list) = (mapper.getTop, new ArrayList[java.util.Map[String, Int]])
 
     0 to (if (all.size > 9) 9 else all.size - 1) foreach {
       i =>

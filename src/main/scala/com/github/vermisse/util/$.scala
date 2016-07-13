@@ -76,10 +76,11 @@ object $ {
     var conn: BufferedSource = null
     try {
       val map = _url.openConnection.getHeaderFields
-      if (map == null)
-        throw new Exception("无法获取Header")
-      if (map.get("Content-Type") == null)
-        throw new Exception("无法获取Content-Type")
+
+      if (map == null) throw new Exception("无法获取Header")
+
+      if (map.get("Content-Type") == null) throw new Exception("无法获取Content-Type")
+
       map.get("Content-Type").foreach {
         charset =>
           val matcher = Pattern.compile(".*charset=([^;]*).*").matcher(charset)
@@ -214,7 +215,7 @@ object $ {
       document(doc)
       iwriter.addDocument(doc)
     } finally {
-      iwriter.close
+      (iwriter.close, directory.close)
     }
   }
 
@@ -265,9 +266,7 @@ object $ {
           document(hitDoc)
       }
     } finally {
-      mreader.close
-      ireader.close
-      directory.close
+      (mreader.close, ireader.close, directory.close)
     }
   }
 
@@ -290,12 +289,10 @@ object $ {
     def indexOf(text: String) = html.toLowerCase.indexOf(text)
     def refind(end: Int, tag: String) = html.substring(end + 1).toLowerCase.indexOf(tag) + 1
     def sub(begin: Int, end: Int = html.length) = html.substring(begin, end)
-    
-    val style = indexOf("<style")
-    val script = indexOf("<script")
-    var endStyle = indexOf("</style>")
-    var endScript = indexOf("</script>")
-    
+
+    val (style, script) = (indexOf("<style"), indexOf("<script"))
+    var (endStyle, endScript) = (indexOf("</style>"), indexOf("</script>"))
+
     if (style != -1 && endStyle != -1) {
       while (endStyle < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
         endStyle += refind(endStyle, "</style>")

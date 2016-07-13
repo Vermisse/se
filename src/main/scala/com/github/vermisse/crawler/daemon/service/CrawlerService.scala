@@ -33,27 +33,25 @@ class CrawlerService {
    * 保存索引
    */
   def saveIndex(dir: String)(url: String) {
-    var ex: String = null
+    var title, description: String = null
     //读取url内容
-    val html = $.url(url)(ex = _)
-    //如果不为空说明异常了，跳过
-    if (ex != null) {
-      queneMapper.indexQuene(url, $.date("yyyy-MM-dd"), 2)
-      print("[索引失败][")
-      print(ex)
-      print("]")
-      println(url)
-      return
+    val html = $.url(url) {
+      //如果不为空说明异常了，跳过
+      ex =>
+        if (ex != null) {
+          queneMapper.indexQuene(url, $.date("yyyy-MM-dd"), 2)
+          print("[索引失败][")
+          print(ex)
+          print("]")
+          println(url)
+          return
+        }
     }
 
     //因为要重复利用这个值，所以这里定义个常量
-    val static = $.filterScript(html)
-    val parser = new Parser
+    val (static, parser, img) = ($.filterScript(html), new Parser, new ArrayBuffer[String])
     parser.setInputHTML(static)
 
-    var title: String = null
-    var description: String = null
-    val img = new ArrayBuffer[String]
     //遍历一级节点
     while (parser.elements.hasMoreNodes) {
       //查询子节点
@@ -105,7 +103,7 @@ class CrawlerService {
     0 to list.size - 1 foreach {
       i =>
         val tag = list.elementAt(i)
-        
+
         if (tag.isInstanceOf[LinkTag]) { //如果是a标签
           val link = tag.asInstanceOf[LinkTag].getLink
           if (link.matches($.regexUrl) && queneMapper.queryQuene(link).size == 0) {

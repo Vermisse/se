@@ -41,17 +41,13 @@ class SearcherAction {
     mav.addObject("currentPage", cur)
 
     if (key.trim != "") {
-      var pageCount = 0
-
-      val result = query(key, request.getRemoteAddr, pageSize, cur) {
+      mav.addObject("result", query(key, request.getRemoteAddr, pageSize, cur) {
         (page, count) =>
           mav.addObject("page", page)
-          pageCount = count
-      }
-      mav.addObject("result", result)
+          if (cur != count) mav.addObject("next", cur + 1)
+      })
 
       if (cur != 1) mav.addObject("previous", cur - 1)
-      if (cur != pageCount) mav.addObject("next", cur + 1)
     }
 
     mav.addObject("top", service.getTop)
@@ -76,17 +72,13 @@ class SearcherAction {
     mav.addObject("currentPage", cur)
 
     if (key.trim != "") {
-      var pageCount = 0
-
-      val result = query(key, request.getRemoteAddr, pageSize, cur) {
+      mav.addObject("result", query(key, request.getRemoteAddr, pageSize, cur) {
         (page, count) =>
           mav.addObject("page", page)
-          pageCount = count
-      }
-      mav.addObject("result", result)
+          if (cur != count) mav.addObject("next", cur + 1)
+      })
 
       if (cur != 1) mav.addObject("previous", cur - 1)
-      if (cur != pageCount) mav.addObject("next", cur + 1)
     }
 
     mav.addObject("top", service.getTop)

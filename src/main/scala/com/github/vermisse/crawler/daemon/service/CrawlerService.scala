@@ -104,29 +104,36 @@ class CrawlerService {
       i =>
         val tag = list.elementAt(i)
 
-        if (tag.isInstanceOf[LinkTag]) { //如果是a标签
-          val link = tag.asInstanceOf[LinkTag].getLink
-          if (link.matches($.regexUrl) && queneMapper.queryQuene(link).size == 0) {
-            queneMapper.saveQuene(link, $.date("yyyy-MM-dd"), 0)
-            print("[添加队列]")
-            println(link)
+        tag match {
+          case t: LinkTag => {
+            val link = t.getLink //如果是a标签
+            if (link.matches($.regexUrl) && queneMapper.queryQuene(link).size == 0) {
+              queneMapper.saveQuene(link, $.date("yyyy-MM-dd"), 0)
+              print("[添加队列]")
+              println(link)
+            }
           }
-        } else if (tag.isInstanceOf[ImageTag]) {
-          val image = tag.asInstanceOf[ImageTag].getImageURL //如果是图片
-          if (image.matches($.regexUrl)) img(image)
-        } else if (tag.isInstanceOf[FrameTag]) { //如果是frame标签
-          val location = tag.asInstanceOf[FrameTag].getFrameLocation
-          if (location.matches($.regexUrl) && queneMapper.queryQuene(location).size == 0)
-            queneMapper.saveQuene(location, $.date("yyyy-MM-dd"), 0)
-        } else if (tag.isInstanceOf[TitleTag]) { //如果是title标签
-          title(tag.asInstanceOf[TitleTag].getTitle)
-        } else if (tag.isInstanceOf[MetaTag]) { //页面描述
-          val meta = tag.asInstanceOf[MetaTag]
-          val name = meta.getAttribute("name")
-          if (name != null && name.toLowerCase == "description")
-            description(meta.getMetaContent)
-        } else if (tag.getChildren != null) { //递归
-          saveIndex(tag.getChildren)(title)(description)(img)
+          case t: ImageTag => {
+            val image = t.getImageURL //如果是图片
+            if (image.matches($.regexUrl)) img(image)
+          }
+          case t: FrameTag => {
+            val location = t.getFrameLocation //如果是frame标签
+            if (location.matches($.regexUrl) && queneMapper.queryQuene(location).size == 0)
+              queneMapper.saveQuene(location, $.date("yyyy-MM-dd"), 0)
+          }
+          case t: TitleTag => {
+            title(t.getTitle) //如果是title标签
+          }
+          case t: MetaTag => {
+            val name = t.getAttribute("name") //如果是meta标签
+            if (name != null && name.toLowerCase == "description")
+              description(t.getMetaContent) //页面描述
+          }
+          case _ => {
+            if (tag.getChildren != null)
+              saveIndex(tag.getChildren)(title)(description)(img) //递归
+          }
         }
     }
   }

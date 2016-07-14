@@ -10,6 +10,7 @@ import java.util.ArrayList
 import com.github.vermisse.search.model.dao._
 import org.springframework.beans.factory.annotation._
 import scala.collection.JavaConversions._
+import org.apache.lucene.document._
 
 /**
  * 搜索服务
@@ -27,34 +28,15 @@ class SearcherService {
   def queryText(dir: String)(keywords: String,
                              ip: String,
                              pageSize: Int,
-                             currentPage: Int)(page: (ArrayList[Int], Int) => Unit) = {
-    val espKeywords = QueryParserUtil.escape(keywords)
-    val queries = Array(espKeywords, espKeywords, espKeywords, "url")
-    val fields = Array("title", "description", "content", "type")
-    val clauses = Array(
-      BooleanClause.Occur.SHOULD, //表示or
-      BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST表示and
-      BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST_NOT表示not
-      BooleanClause.Occur.MUST)
-    val result = new ArrayList[java.util.Map[String, String]]
-    $.isearcher(dir, queries, fields, clauses, pageSize, currentPage) {
+                             currentPage: Int)(page: (ArrayList[Int], Int) => Unit) =
+    query(dir, keywords, ip, pageSize, currentPage, "url")(page) {
       doc =>
-        result.add {
-          JavaConversions.mapAsJavaMap {
-            Map(
-              "url" -> doc.get("url"),
-              "title" -> doc.get("title"),
-              "description" -> doc.get("description"),
-              "content" -> doc.get("content"))
-          }
-        }
-    } {
-      count =>
-        getRange(count, currentPage)(page(_, count))
+        Map(
+          "url" -> doc.get("url"),
+          "title" -> doc.get("title"),
+          "description" -> doc.get("description"),
+          "content" -> doc.get("content"))
     }
-    mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
-    result
-  }
 
   /**
    * 查询图片
@@ -62,9 +44,28 @@ class SearcherService {
   def queryImage(dir: String)(keywords: String,
                               ip: String,
                               pageSize: Int,
-                              currentPage: Int)(page: (ArrayList[Int], Int) => Unit) = {
+                              currentPage: Int)(page: (ArrayList[Int], Int) => Unit) =
+    query(dir, keywords, ip, pageSize, currentPage, "img")(page) {
+      doc =>
+        Map(
+          "url" -> doc.get("url"),
+          "title" -> doc.get("title"),
+          "description" -> doc.get("description"),
+          "content" -> doc.get("content"),
+          "image" -> doc.get("image"))
+    }
+
+  /**
+   * 通用查询
+   */
+  def query(dir: String,
+            keywords: String,
+            ip: String,
+            pageSize: Int,
+            currentPage: Int,
+            tp: String)(page: (ArrayList[Int], Int) => Unit)(doc: Document => Map[String, String]) = {
     val espKeywords = QueryParserUtil.escape(keywords)
-    val queries = Array(espKeywords, espKeywords, espKeywords, "img")
+    val queries = Array(espKeywords, espKeywords, espKeywords, tp)
     val fields = Array("title", "description", "content", "type")
     val clauses = Array(
       BooleanClause.Occur.SHOULD, //表示or
@@ -72,22 +73,11 @@ class SearcherService {
       BooleanClause.Occur.SHOULD, //BooleanClause.Occur.MUST_NOT表示not
       BooleanClause.Occur.MUST)
     val result = new ArrayList[java.util.Map[String, String]]
-    $.isearcher(dir, queries, fields, clauses, pageSize, currentPage) {
-      doc =>
-        result.add {
-          JavaConversions.mapAsJavaMap {
-            Map(
-              "url" -> doc.get("url"),
-              "title" -> doc.get("title"),
-              "description" -> doc.get("description"),
-              "content" -> doc.get("content"),
-              "image" -> doc.get("image"))
-          }
-        }
-    } {
-      count =>
-        getRange(count, currentPage)(page(_, count))
+    val count = $.isearcher(dir, queries, fields, clauses, pageSize, currentPage) {
+      x =>
+        result.add(JavaConversions.mapAsJavaMap(doc(x)))
     }
+    page(getRange(count, currentPage), count)
     mapper.saveKeywords($.randomText(15), ip, keywords, $.date("yyyy-MM-dd HH:mm:ss.SSS"))
     result
   }
@@ -95,17 +85,18 @@ class SearcherService {
   /**
    * 获取分页
    */
-  def getRange(cnt: Int, cur: Int)(page: ArrayList[Int] => Unit) {
+  def getRange(cnt: Int, cur: Int) = {
     val list = new ArrayList[Int]
-    (if (cnt > cur + 9)
-      cur to cur + 9 //如果总页数比当前页大9页以上，从当前页数到9页以后
-    else if (cnt > cur && cnt > 10)
-      cnt - 9 to cnt //否则如果比当前页大不到9页，但是超过10页，说明是最后几页，从最后一页-9开始计算
-    else if (cnt != 0)
-      1 to cnt
-    else
-      0 to 0).foreach(list.add _)
-    page(list)
+    val range = cnt match {
+      //如果总页数比当前页大9页以上，从当前页数到9页以后
+      case _ if (cnt > cur + 9)         => cur to cur + 9
+      //否则如果比当前页大不到9页，但是超过10页，说明是最后几页，从最后一页-9开始计算
+      case _ if (cnt > cur && cnt > 10) => cnt - 9 to cnt
+      case _ if (cnt != 0)              => 1 to cnt
+      case _                            => 0 to 0
+    }
+    range.foreach(list.add(_))
+    list
   }
 
   /**

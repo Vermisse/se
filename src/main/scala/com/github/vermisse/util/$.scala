@@ -19,6 +19,7 @@ import org.htmlparser.beans._
 import org.apache.lucene.search._
 import org.apache.lucene.queryparser.classic._
 import java.nio.charset._
+import javax.servlet.http._
 
 /**
  * 工具类
@@ -168,8 +169,8 @@ object $ {
     var conn: Connection = null
     var pstmt: PreparedStatement = null
     try {
-      if (username != null && password != null) conn = DriverManager.getConnection(url, username, password)
-      else conn = DriverManager.getConnection(url)
+      conn = if (username != null && password != null) DriverManager.getConnection(url, username, password)
+      else DriverManager.getConnection(url)
       pstmt = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY)
       ps(pstmt)
 
@@ -235,7 +236,7 @@ object $ {
                 fields: scala.Array[String],
                 clauses: scala.Array[BooleanClause.Occur],
                 pageSize: Int,
-                currentPage: Int)(document: Document => Unit)(pageCount: Int => Unit) {
+                currentPage: Int)(document: Document => Unit) = {
     val analyzer = new StandardAnalyzer
 
     //将索引存储到硬盘上，使用下面的代码代替
@@ -255,16 +256,13 @@ object $ {
       val begin = pageSize * (currentPage - 1)
       val end = Math.min(begin + pageSize, hits.length) - 1
 
-      pageCount {
-        Math.ceil(hits.length / pageSize).toInt
-      }
-
       //迭代输出结果
       begin to end foreach {
         i =>
           val hitDoc = isearcher.doc(hits(i).doc)
           document(hitDoc)
       }
+      Math.ceil(hits.length / pageSize).toInt
     } finally {
       (mreader.close, ireader.close, directory.close)
     }
@@ -316,6 +314,11 @@ object $ {
     }
     sb.toString
   }
+
+  /**
+   * 简化request获取parameter
+   */
+  def param(request: HttpServletRequest)(key: String) = request.getParameter(key)
 
   /**
    * null转换为空字符串

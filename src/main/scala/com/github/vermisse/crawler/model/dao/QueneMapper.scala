@@ -2,7 +2,7 @@ package com.github.vermisse.crawler.model.dao
 
 import org.apache.ibatis.annotations._
 import com.github.vermisse.util._
-import java.util.List, java.util.Map
+import java.util.{ List, Map }
 
 /**
  * 队列操作

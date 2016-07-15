@@ -99,7 +99,7 @@ class CrawlerService {
     println(url)
   }
 
-  def saveIndex(list: NodeList)(title: String => Unit)(description: String => Unit)(img: String => Unit) {
+  private def saveIndex(list: NodeList)(title: String => Unit)(description: String => Unit)(img: String => Unit) {
     0 to list.size - 1 foreach {
       i =>
         val tag = list.elementAt(i)

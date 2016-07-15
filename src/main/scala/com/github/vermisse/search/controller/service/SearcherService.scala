@@ -58,7 +58,7 @@ class SearcherService {
   /**
    * 通用查询
    */
-  def query(dir: String,
+  private def query(dir: String,
             keywords: String,
             ip: String,
             pageSize: Int,
@@ -85,7 +85,7 @@ class SearcherService {
   /**
    * 获取分页
    */
-  def getRange(cnt: Int, cur: Int) = {
+  private def getRange(cnt: Int, cur: Int) = {
     val list = new ArrayList[Int]
     val range = cnt match {
       //如果总页数比当前页大9页以上，从当前页数到9页以后

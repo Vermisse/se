@@ -38,7 +38,7 @@ class CrawlerService {
     val html = $.url(url) {
       //如果不为空说明异常了，跳过
       ex =>
-        if (ex != null) {
+        if (ex != null) { //这个if没什么卵用
           queneMapper.indexQuene(url, $.date("yyyy-MM-dd"), 2)
           print("[索引失败][")
           print(ex)

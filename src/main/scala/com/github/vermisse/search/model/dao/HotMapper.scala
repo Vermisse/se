@@ -1,6 +1,7 @@
 package com.github.vermisse.search.model.dao
 
 import org.apache.ibatis.annotations._
+import java.util.{ List, Map }
 
 /**
  * @author vermisse
@@ -18,5 +19,5 @@ trait HotMapper {
   /**
    * 查询热搜榜
    */
-  def getTop: java.util.List[java.util.Map[String, Int]]
+  def getTop: List[Map[String, Int]]
 }

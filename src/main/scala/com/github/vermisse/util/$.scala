@@ -307,7 +307,7 @@ object $ {
    */
   def randomText(length: Int) = {
     val sb = new StringBuilder
-    0 to length - 1 foreach {
+    1 to length foreach {
       _ =>
         val tmp = (Math.random * 62).toInt
         sb.append((if (tmp < 26) tmp + 65 else if (tmp < 52) tmp + 71 else tmp - 4).toChar)

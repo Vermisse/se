@@ -29,14 +29,14 @@ object $ {
 
   /**
    * 日期处理，所有参数都有默认值
-   * @param format:输出格式，偏函数，默认值为yyyy-MM-dd HH:mm:ss
-   * @param date:日期，偏函数，默认为当前系统时间
-   * @param year:修改年，偏函数，默认为0
-   * @param month:修改月，偏函数，默认为0
-   * @param day:修改日，偏函数，默认为0
-   * @param hour:修改时，偏函数，默认为0
-   * @param minute:修改分，偏函数，默认为0
-   * @param second:修改秒，偏函数，默认为0
+   * @param format:输出格式，默认值为yyyy-MM-dd HH:mm:ss
+   * @param date:日期，默认为当前系统时间
+   * @param year:修改年，默认为0
+   * @param month:修改月，默认为0
+   * @param day:修改日，默认为0
+   * @param hour:修改时，默认为0
+   * @param minute:修改分，默认为0
+   * @param second:修改秒，默认为0
    */
   def date(format: String = "yyyy-MM-dd HH:mm:ss",
            date: java.util.Date = new java.util.Date,
@@ -128,8 +128,8 @@ object $ {
   /**
    * JDBC查询
    * @param url:数据库连接
-   * @param username:数据库账号，偏函数
-   * @param password:数据库密码，偏函数
+   * @param username:数据库账号，可空
+   * @param password:数据库密码，可空
    * @param sql:查询语句
    * @param ps:PreparedStatement实例，高阶函数
    * @param rs:ResultSet实例，高阶函数
@@ -158,8 +158,8 @@ object $ {
   /**
    * JDBC执行
    * @param url:数据库连接
-   * @param username:数据库账号，偏函数
-   * @param password:数据库密码，偏函数
+   * @param username:数据库账号，可空
+   * @param password:数据库密码，可空
    * @param sql:查询语句
    * @param ps:PreparedStatement实例，高阶函数
    */

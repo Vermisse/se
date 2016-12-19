@@ -12,6 +12,17 @@
 		<spring.version>3.2.16.RELEASE</spring.version>
 	</properties>
 	<dependencies>
+		<!-- Scala -->
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.11.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-reflect</artifactId>
+			<version>2.11.8</version>
+		</dependency>
 		<!-- Spring组件 -->
 		<dependency>
 			<groupId>org.springframework</groupId>

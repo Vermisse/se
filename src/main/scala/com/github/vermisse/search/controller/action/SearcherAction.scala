@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation._
 import javax.servlet._
 import org.springframework.web.servlet._
 import java.util.ArrayList
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http._
 import com.github.vermisse.util._
 
 /**
@@ -38,14 +38,14 @@ class SearcherAction {
       case "text" => service.queryText(application.getRealPath("/WEB-INF/lucene"))(_, _, _, _)
       case "image" => service.queryImage(application.getRealPath("/WEB-INF/lucene"))(_, _, _, _)
     }
-    val param = $.param(request)(_)
+    val param = $(request)(_)
 
     //初始化参数
     val (pageSize, keywords, currentPage) = (size, param("keywords"), param("currentPage"))
 
     //参数转换
-    val key = new String($.##(keywords).getBytes("ISO-8859-1"), "UTF-8")
-    val cur = if ($.##(currentPage).matches($.regexNum)) currentPage.toInt else 1 //如果是数字取当前页，否则设置为1
+    val key = new String($(keywords).getBytes("ISO-8859-1"), "UTF-8")
+    val cur = if ($(currentPage).matches($.regexNum)) currentPage.toInt else 1 //如果是数字取当前页，否则设置为1
 
     //定义返回值
     val mav = new ModelAndView(forward)

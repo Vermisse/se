@@ -71,9 +71,9 @@ class CrawlerService {
     iwriter {
       doc =>
         doc.add(new Field("url", url, TextField.TYPE_STORED))
-        doc.add(new Field("title", $.##(title), TextField.TYPE_STORED))
-        doc.add(new Field("description", $.##(description), TextField.TYPE_STORED))
-        doc.add(new Field("content", $.##(sb.getStrings), TextField.TYPE_STORED))
+        doc.add(new Field("title", $(title), TextField.TYPE_STORED))
+        doc.add(new Field("description", $(description), TextField.TYPE_STORED))
+        doc.add(new Field("content", $(sb.getStrings), TextField.TYPE_STORED))
         doc.add(new Field("type", "url", TextField.TYPE_STORED))
     }
     //将图片写入lucene
@@ -85,9 +85,9 @@ class CrawlerService {
           iwriter {
             doc =>
               doc.add(new Field("url", url, TextField.TYPE_STORED))
-              doc.add(new Field("title", $.##(title), TextField.TYPE_STORED))
-              doc.add(new Field("description", $.##(description), TextField.TYPE_STORED))
-              doc.add(new Field("content", $.##(sb.getStrings), TextField.TYPE_STORED))
+              doc.add(new Field("title", $(title), TextField.TYPE_STORED))
+              doc.add(new Field("description", $(description), TextField.TYPE_STORED))
+              doc.add(new Field("content", $(sb.getStrings), TextField.TYPE_STORED))
               doc.add(new Field("image", image, TextField.TYPE_STORED))
               doc.add(new Field("type", "img", TextField.TYPE_STORED))
               print("[索引完毕]")

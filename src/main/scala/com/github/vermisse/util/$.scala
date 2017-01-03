@@ -73,10 +73,9 @@ object $ {
       else
         matcher.group(1).toUpperCase
 
-    val _url = new URL(url)
     var conn: BufferedSource = null
     try {
-      val map = _url.openConnection.getHeaderFields
+      val map = new URL(url).openConnection.getHeaderFields
 
       if (map == null) throw new Exception("无法获取Header")
 
@@ -134,15 +133,15 @@ object $ {
    * @param ps:PreparedStatement实例，高阶函数
    * @param rs:ResultSet实例，高阶函数
    */
-  def select(url: String,
-             username: String = null,
-             password: String = null)(sql: String)(ps: PreparedStatement => Unit)(rs: ResultSet => Unit) {
+  def select(url: String, username: String = null, password: String = null)
+            (sql: String)(ps: PreparedStatement => Unit)(rs: ResultSet => Unit) {
     var conn: Connection = null
     var pstmt: PreparedStatement = null
     var rset: ResultSet = null
     try {
-      if (username != null && password != null) conn = DriverManager.getConnection(url, username, password)
-      else conn = DriverManager.getConnection(url)
+      conn = if (username == null || password == null) DriverManager.getConnection(url)
+      else DriverManager.getConnection(url, username, password)
+      
       pstmt = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
       ps(pstmt)
       rset = pstmt.executeQuery
@@ -163,14 +162,13 @@ object $ {
    * @param sql:查询语句
    * @param ps:PreparedStatement实例，高阶函数
    */
-  def execute(url: String,
-              username: String = null,
-              password: String = null)(sql: String)(ps: PreparedStatement => Unit) = {
+  def execute(url: String, username: String = null, password: String = null)
+             (sql: String)(ps: PreparedStatement => Unit) = {
     var conn: Connection = null
     var pstmt: PreparedStatement = null
     try {
-      conn = if (username != null && password != null) DriverManager.getConnection(url, username, password)
-      else DriverManager.getConnection(url)
+      conn = if (username == null || password == null) DriverManager.getConnection(url)
+      else DriverManager.getConnection(url, username, password)
       pstmt = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY)
       ps(pstmt)
 
@@ -294,10 +292,12 @@ object $ {
     if (style != -1 && endStyle != -1) {
       while (endStyle < style) //有些标签不是对称的，为了防止这种情况，如果结束标签早于开始标签，重新计算结束标签
         endStyle += refind(endStyle, "</style>")
+        
       filterScript(sub(0, style) + sub(endStyle + 8))
     } else if (script != -1 && endScript != -1) {
       while (endScript < script)
         endScript += refind(endScript, "</script>")
+        
       filterScript(sub(0, script) + sub(endScript + 9))
     } else html
   }
@@ -318,12 +318,12 @@ object $ {
   /**
    * 简化request获取parameter
    */
-  def param(request: HttpServletRequest)(key: String) = request.getParameter(key)
+  def apply(request: HttpServletRequest) = request.getParameter((_: String))
 
   /**
    * null转换为空字符串
    */
-  def ##(text: String) = if (text == null) "" else text
+  def apply(text: String) = if (text == null) "" else text
 
   /**
    * url正则表达式验证规则

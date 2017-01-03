@@ -4,8 +4,8 @@ import org.springframework.stereotype._
 import com.github.vermisse.util._
 import org.apache.lucene.search._
 import scala.collection._
-import org.apache.lucene.queryparser.classic.QueryParser
-import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil
+import org.apache.lucene.queryparser.classic._
+import org.apache.lucene.queryparser.flexible.standard._
 import java.util.ArrayList
 import com.github.vermisse.search.model.dao._
 import org.springframework.beans.factory.annotation._
@@ -25,10 +25,9 @@ class SearcherService {
   /**
    * 查询网页
    */
-  def queryText(dir: String)(keywords: String,
-                             ip: String,
-                             pageSize: Int,
-                             currentPage: Int)(page: (ArrayList[Int], Int) => Unit) =
+  def queryText(dir: String)
+               (keywords: String, ip: String, pageSize: Int, currentPage: Int)
+               (page: (ArrayList[Int], Int) => Unit) =
     query(dir, keywords, ip, pageSize, currentPage, "url")(page) {
       doc =>
         Map(
@@ -41,10 +40,9 @@ class SearcherService {
   /**
    * 查询图片
    */
-  def queryImage(dir: String)(keywords: String,
-                              ip: String,
-                              pageSize: Int,
-                              currentPage: Int)(page: (ArrayList[Int], Int) => Unit) =
+  def queryImage(dir: String)
+                (keywords: String, ip: String, pageSize: Int, currentPage: Int)
+                (page: (ArrayList[Int], Int) => Unit) =
     query(dir, keywords, ip, pageSize, currentPage, "img")(page) {
       doc =>
         Map(
@@ -58,12 +56,9 @@ class SearcherService {
   /**
    * 通用查询
    */
-  private def query(dir: String,
-            keywords: String,
-            ip: String,
-            pageSize: Int,
-            currentPage: Int,
-            tp: String)(page: (ArrayList[Int], Int) => Unit)(doc: Document => Map[String, String]) = {
+  private def query(dir: String, keywords: String, ip: String, pageSize: Int, currentPage: Int, tp: String)
+                   (page: (ArrayList[Int], Int) => Unit)
+                   (doc: Document => Map[String, String]) = {
     val espKeywords = QueryParserUtil.escape(keywords)
     val queries = Array(espKeywords, espKeywords, espKeywords, tp)
     val fields = Array("title", "description", "content", "type")

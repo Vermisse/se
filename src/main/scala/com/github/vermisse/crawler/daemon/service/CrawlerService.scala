@@ -104,6 +104,7 @@ class CrawlerService {
       i =>
         val tag = list.elementAt(i)
 
+        //模式匹配
         tag match {
           case t: LinkTag => {
             val link = t.getLink //如果是a标签
